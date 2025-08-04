@@ -7,7 +7,7 @@ import './App.css'
 function App() {
   const [firstResponse, setFirstResponse] = useState(null);
   useEffect(() => {
-    axios.get('http://localhost:3000/')
+    axios.get('http://localhost:3000/blah')
       .then(response => setFirstResponse(response.data))
       .catch(error => console.error('Error fetching tasks:', error));
   }, []);
