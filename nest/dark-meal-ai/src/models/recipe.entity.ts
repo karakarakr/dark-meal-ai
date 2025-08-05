@@ -21,7 +21,7 @@ export class Recipe {
     author: User
 
     @Column()
-    authorId: number // Init relationship
+    authorId: number
 
     @Column({ type: 'timestamp' })
     createdAt: Date
