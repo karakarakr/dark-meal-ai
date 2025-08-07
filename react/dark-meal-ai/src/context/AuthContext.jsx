@@ -1,5 +1,6 @@
 import { useContext, createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { notifications } from '@mantine/notifications';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -17,7 +18,7 @@ const AuthProvider = ({ children }) => {
         axios.post('http://localhost:3000/auth/login', {
             email: email,
             password: password
-        }).then(function (response) {
+        }).then((response) => {
                 console.log(JSON.stringify(response.retrievedUser));
                 setUser(response.data['retrievedUser']);
                 localStorage.setItem('accessToken', response.data['accessToken']);
@@ -25,8 +26,23 @@ const AuthProvider = ({ children }) => {
                 alert(accessToken);
                 navigate("/");
             })
-            .catch(function (error) {
-                console.log(error);
+            .catch((error) => {
+                console.error(error);
+
+                if (error.status === 401) {
+                    notifications.show({
+                        color: 'red',
+                        title: 'Error occured',
+                        message: 'Wrong credentials'
+                    });
+                }
+                else {
+                    notifications.show({
+                        color: 'red',
+                        title: 'Error occured',
+                        message: error.message,
+                    });
+                }
             });
     };
 
@@ -64,7 +80,7 @@ const AuthProvider = ({ children }) => {
             user, 
             signInSubmit, 
             signUpSubmit, 
-            logOut 
+            logOut
         }}>
             {children}
         </AuthContext.Provider>

@@ -38,6 +38,7 @@ function MainPage() {
                 {recipes.map((recipe) => (
                 <ItemMeal 
                     key={recipe.id}
+                    mealId={recipe.id}
                     title={recipe.title}
                     shortDescription={recipe.content.slice(0, 20) + '...'} 
                     date={recipe.createdAt}

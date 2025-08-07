@@ -11,6 +11,7 @@ import { MantineProvider } from '@mantine/core';
 import RegisterPage from './pages/RegisterPage.jsx';
 import MainPage from './pages/MainPage.jsx';
 import RecipePage from './pages/RecipePage.jsx';
+import { Notifications } from '@mantine/notifications';
 import ErrorPage from './pages/ErrorPage.jsx';
 
 const router = createBrowserRouter([
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
         element: <RegisterPage/>
       },
       {
-        path: "/recipe",
+        path: "/recipe/:id",
         element: <RecipePage/>
       },
     ]
@@ -42,7 +43,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <MantineProvider>
+    <MantineProvider  withGlobalStyles
+      withNormalizeCSS
+      defaultColorScheme="dark">
+      <Notifications position="bottom-right" />
       <RouterProvider router={router} />
     </MantineProvider>
   </StrictMode>,

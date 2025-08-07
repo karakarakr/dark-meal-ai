@@ -1,4 +1,5 @@
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
 import HeaderSearch from './components/common/Header/HeaderSearch';
 import { AppShell } from '@mantine/core';
 import './App.css'
