@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Card, Group, Badge, Button, Image, Text } from '@mantine/core';
+import { Grid, Card, Group, Badge, Button, Image, Text, Space } from '@mantine/core';
 
 function ItemMeal({ title, shortDescription, date }) {
   return (
@@ -13,9 +13,7 @@ function ItemMeal({ title, shortDescription, date }) {
                 />
             </Card.Section>
 
-            <Group justify="space-between" mt="sm" mb="xs">
-                
-            </Group>
+            <Space h="md"></Space>
 
             <Text size='xl' c="dark">
                 {title}

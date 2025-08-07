@@ -10,8 +10,35 @@ import {
   Stack,
   Flex
 } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 function RegisterPage() {
+    const navigate = useNavigate();
+    const auth = useAuth();
+    const form = useForm({
+        initialValues: {
+            email: "",
+            password: ""
+        }
+    })
+
+    // const signUpSubmit = (values) => {
+    //     const email = values.email;
+    //     const password = values.password;
+
+    //     axios.post('http://localhost:3000/auth/register', {
+    //         email: email,
+    //         password: password
+    //     }).then(function (response) {
+    //             navigate("/signin");
+    //         })
+    //         .catch(function (error) {
+    //             console.log(error);
+    //         });
+    // };
+    
     return (
         <Flex
             justify="center"
@@ -30,24 +57,30 @@ function RegisterPage() {
                 Sign Up
               </Title>
     
-              <form>
-                <Stack>
-                  <TextInput
-                    label="Email"
-                    placeholder="you@example.com"
-                    required
-                    type="email"
-                  />
-                  <PasswordInput
-                    label="Password"
-                    placeholder="Your password"
-                    required
-                  />
-                  <Button type="submit" fullWidth mt="md">
-                    Sign Up
-                  </Button>
-                </Stack>
-              </form>
+              <form onSubmit={form.onSubmit((values) => {auth.signUpSubmit(values)})}>
+                    <Stack>
+                        <TextInput
+                            name='email'
+                            label="Email"
+                            placeholder="you@example.com"
+                            required
+                            type="email"
+                            key={form.key('email')}
+                            {...form.getInputProps('email')}
+                        />
+                        <PasswordInput
+                            name='password'
+                            label="Password"
+                            placeholder="Your password"
+                            required
+                            key={form.key('password')}
+                            {...form.getInputProps('password')}
+                        />
+                        <Button type="submit" fullWidth mt="md">
+                            Sign Up
+                        </Button>
+                    </Stack>
+                </form>
             </Paper>
           </Container>
         </Flex>

@@ -26,8 +26,8 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials: wrong password');
         }
 
+        const retrievedUser = { id: user.id, email: user.email };
         const payload = { sub: user.id, email: user.email };
-
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>('SECRET_ACCESS_KEY'),
             expiresIn: '15m',
@@ -45,12 +45,8 @@ export class AuthService {
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
 
-        // МЕНЕ ЗВАТИ ТВОЯ СОВІСТЬ!!!
-        // ЯКЩО ХОЧЕШ ЖИТИ - ДОРОБИ JWT токен.
-        // LOGOUT Логіку
-        // ПС: ТО Я НАПИСАВ, ПРОСТО ЦІКАВО ЧИ ХОРОША ПАм'ЯТЬ
-
         return {
+            retrievedUser,
             accessToken,
             refreshToken,
         };

@@ -13,8 +13,9 @@ export class AuthController {
         @Body() SignInDto: SignInDto,
         @Res({ passthrough: true }) response: Response
     ) {
-        const { accessToken, refreshToken } = await this.authService.login(SignInDto, response);
-
+        
+        const { retrievedUser, accessToken, refreshToken } = await this.authService.login(SignInDto, response);
+        console.log(JSON.stringify(retrievedUser));
         // response.setCookie('refreshToken', refreshToken, {
         //     httpOnly: true,
         //     secure: true,
@@ -23,7 +24,7 @@ export class AuthController {
         //     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 днів
         // });
 
-        return { accessToken, refreshToken };
+        return { retrievedUser, accessToken, refreshToken };
     }
 
     @Post('register')

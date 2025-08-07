@@ -1,13 +1,11 @@
 import React from 'react';
 import { AppShell, Container, Group, Button, Text } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
-import { Outlet, Link } from 'react-router-dom';
-
-// ТУДУ
-// Зробити роутинг на сторінці
-// ТУДУ
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function HeaderSearch() {
+  const auth = useAuth();
+  
   return (
     <>
       <AppShell.Header>
@@ -27,12 +25,19 @@ export default function HeaderSearch() {
           </Link>
 
           <Group gap="xs">
-            <Link to={`signin`}>
-              <Button variant="default">Sign In</Button>
-            </Link>
-            <Link to={`signup`}>
-              <Button>Sign Up</Button>
-            </Link>
+          {!auth.user ? (
+            <>
+              <Link to={`signin`}>
+                <Button variant="default">Sign In</Button>
+              </Link>
+              <Link to={`signup`}>
+                <Button>Sign Up</Button>
+              </Link>
+            </>
+            ) : (
+              <Button variant="filled" color="red" onClick={auth.logOut}>Logout</Button>
+            )
+          }
           </Group>
         </Container>
       </AppShell.Header>
