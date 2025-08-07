@@ -1,63 +1,21 @@
 src/
-├── assets/
-│   ├── images/
-│   ├── fonts/
-│   └── icons/
-├── components/
-│   ├── common/  (e.g., Button, Card, Spinner, Modal)
-│   ├── blog/    (e.g., BlogPostCard, CommentSection, TagList)
-│   └── layout/  (e.g., Header, Footer, Navigation)
-├── contexts/
-│   └── AuthContext.js
-├── hooks/
-│   └── useAuth.js
-├── pages/
-│   ├── HomePage.js
-│   ├── BlogPostsPage.js
-│   ├── BlogPostDetailPage.js
-│   ├── CategoryPage.js
-│   └── AboutPage.js
-├── services/
-│   └── blogApi.js  (for API calls related to blog posts, comments, etc.)
-├── styles/
-│   ├── global.css
-│   ├── variables.css
-│   └── mixins.css
-├── utils/
-│   └── helpers.js (utility functions)
-└── App.js
-└── index.js
-
-
-
-Explanation of Folders:
-
-    assets/:
-    Stores static files like images, fonts, and icons used throughout the application.
-
-components/:
-Contains reusable UI components.
-
-    common/: For highly generic components that can be used across different features (e.g., Button, Modal).
-
-blog/: For components specific to the blog functionality (e.g., BlogPostCard, CommentForm).
-layout/: For structural components defining the application's layout (e.g., Header, Footer).
-
-contexts/:
-Holds React Context providers for managing global state (e.g., user authentication).
-hooks/:
-Stores custom React Hooks for reusable logic (e.g., useAuth for authentication-related logic).
-pages/:
-Contains top-level components representing individual pages or routes of the application (e.g., HomePage, BlogPostDetailPage).
-services/:
-Encapsulates logic for interacting with external APIs or services (e.g., blogApi.js for fetching blog posts).
-styles/:
-For global styles, CSS variables, and mixins.
-utils/:
-Houses utility functions or helper modules that don't belong to a specific component or feature. 
-App.js:
-The root component of your React application.
-index.js:
-The entry point of your application, responsible for rendering the App component.
-
-This structure promotes modularity, makes it easier to locate specific files, and enhances code reusability, which are crucial for building a scalable and maintainable blog application.
+├── assets/                  # Зображення, шрифти, стилі
+├── components/              # Переюзабельні компоненти (Button, Navbar, тощо)
+│   └── Navbar.jsx
+├── layouts/                 # Шаблони сторінок (наприклад, з AppShell)
+│   └── MainLayout.jsx
+├── pages/                   # Сторінки (Login, Register, Home і т.д.)
+│   ├── auth/
+│   │   ├── LoginPage.jsx
+│   │   └── RegisterPage.jsx
+│   ├── HomePage.jsx
+│   └── NotFoundPage.jsx
+├── routes/                  # Окрема папка для конфігурації роутів
+│   └── AppRoutes.jsx
+├── services/                # API-запити, токени тощо
+│   └── authService.js
+├── utils/                   # Утиліти (guard-и, хелпери)
+│   └── PrivateRoute.jsx
+├── App.jsx
+├── main.jsx
+└── index.css

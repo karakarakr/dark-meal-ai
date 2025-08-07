@@ -1,6 +1,11 @@
 import React from 'react';
-import { AppShell, Container, Group, Button, Text, TextInput } from '@mantine/core';
+import { AppShell, Container, Group, Button, Text } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
+import { Outlet, Link } from 'react-router-dom';
+
+// ТУДУ
+// Зробити роутинг на сторінці
+// ТУДУ
 
 export default function HeaderSearch() {
   return (
@@ -15,22 +20,19 @@ export default function HeaderSearch() {
             height: '100%',
           }}
         >
-          {/* Логотип */}
-          <Text fw={700} fz="xl">
-            DarkMeals
-          </Text>
+          <Link to={`/`}>
+            <Text fw={700} fz="xl">
+              DarkMeals
+            </Text>
+          </Link>
 
-          {/* Пошук */}
-          <TextInput
-            placeholder="Search meals..."
-            leftSection={<IconSearch size={16} />}
-            style={{ flexGrow: 1, maxWidth: 400 }}
-          />
-
-          {/* Кнопки */}
           <Group gap="xs">
-            <Button variant="default">Sign In</Button>
-            <Button>Sign Up</Button>
+            <Link to={`signin`}>
+              <Button variant="default">Sign In</Button>
+            </Link>
+            <Link to={`signup`}>
+              <Button>Sign Up</Button>
+            </Link>
           </Group>
         </Container>
       </AppShell.Header>

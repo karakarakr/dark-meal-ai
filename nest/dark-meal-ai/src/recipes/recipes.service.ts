@@ -1,26 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { Recipe } from 'src/models/recipe.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class RecipesService {
-  create(createRecipeDto: CreateRecipeDto) {
-    return 'This action adds a new recipe';
+  constructor(
+    @InjectRepository(Recipe)
+    private recipesRepository: Repository<Recipe>
+  ) {}
+
+  async create(createRecipeDto: CreateRecipeDto) {
+    const recipe = this.recipesRepository.create({
+      ...createRecipeDto,
+      createdAt: new Date(),
+    });
+    return await this.recipesRepository.save(recipe);
   }
 
-  findAll() {
-    return `This action returns all recipes`;
+  async findAll() {
+    return await this.recipesRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} recipe`;
+  async findOne(id: number) {
+    return await this.recipesRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    return `This action updates a #${id} recipe`;
+  async update(id: number, updateRecipeDto: UpdateRecipeDto) {
+    await this.recipesRepository.update(id, updateRecipeDto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} recipe`;
+  async remove(id: number) {
+    const result = await this.recipesRepository.delete(id);
+  
+    if (result.affected === 0) {
+      throw new NotFoundException(`Recipe with id ${id} not found`);
+    }
+  
+    return { message: `Recipe with id ${id} deleted successfully` };
   }
 }
