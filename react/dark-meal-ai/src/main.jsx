@@ -43,7 +43,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <MantineProvider  withGlobalStyles
+    <MantineProvider
+      withGlobalStyles
       withNormalizeCSS
       defaultColorScheme="dark">
       <Notifications position="bottom-right" />

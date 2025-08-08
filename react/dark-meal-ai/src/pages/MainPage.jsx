@@ -5,11 +5,14 @@ import { IconSearch } from '@tabler/icons-react';
 import { Center, TextInput, Space, Button } from '@mantine/core';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useDisclosure } from '@mantine/hooks';
+import AddRecipeModal from '../components/common/Modal/AddRecipeModal';
 
 function MainPage() {
     const [recipes, setRecipes] = useState([]);
+    const [opened, { open, close }] = useDisclosure(false);
     const auth = useAuth();
-    
+
     useEffect(() => {
       axios.get('http://localhost:3000/recipes')
         .then(response => setRecipes([...response.data]))
@@ -29,20 +32,21 @@ function MainPage() {
                 {auth.user && (
                     <>
                         <Space w="md"/>
-                        <Button>+ Add meal</Button>
-                    </>
+                        <Button onClick={open}>+ Add meal</Button>
+                        <AddRecipeModal opened={opened} onClose={close} title="Authentication"/>                    </>
                 )}
             </Center>
             <Space h="md"/>
+
             <GridMeals>
                 {recipes.map((recipe) => (
-                <ItemMeal 
-                    key={recipe.id}
-                    mealId={recipe.id}
-                    title={recipe.title}
-                    shortDescription={recipe.content.slice(0, 20) + '...'} 
-                    date={recipe.createdAt}
-                />
+                    <ItemMeal 
+                        key={recipe.id}
+                        mealId={recipe.id}
+                        title={recipe.title}
+                        description={recipe.content} 
+                        date={recipe.createdAt}
+                    />
                 ))}
             </GridMeals>
         </>

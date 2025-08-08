@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, Card, Group, Badge, Button, Image, Text, Space } from '@mantine/core';
 import { Link } from 'react-router-dom';
 
-function ItemMeal({ mealId, title, shortDescription, date }) {
+function ItemMeal({ mealId, title, description, date }) {
   return (
     <Grid.Col span={4}>
         <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -20,8 +20,11 @@ function ItemMeal({ mealId, title, shortDescription, date }) {
                 {title}
             </Text>
 
-            <Text size="sm" c="dimmed">
-                {shortDescription}
+            <Text size="sm" c="dimmed" style={{ 
+                textOverflow: 'ellipsis', 
+                whiteSpace: 'nowrap'
+            }}>
+                {description}
             </Text>
 
             <Link to={`/recipe/${mealId}`}>
