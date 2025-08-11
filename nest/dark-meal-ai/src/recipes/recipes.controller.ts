@@ -26,7 +26,7 @@ export class RecipesController {
 
   @UseGuards(OptionalJwtAuthGuard)
   @Post()
-  create(
+  async create(
     @Req() req,
     @Body() createRecipeDto: CreateRecipeDto
   ) {
@@ -42,18 +42,31 @@ export class RecipesController {
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.recipesService.findAll();
   }
 
+  @Get('count')
+  async getCount() {
+    return this.recipesService.count();
+  }
+
+  @Get('chunk/:start/:end')
+  async getChunk(
+    @Param('start') start: number, 
+    @Param('end') end: number
+  ) {
+    return this.recipesService.getChunk(start, end);
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.recipesService.findOne(+id);
   }
 
   @UseGuards(OptionalJwtAuthGuard)
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string, 
     @Req() req,
     @Body() updateRecipeDto: UpdateRecipeDto
@@ -68,11 +81,10 @@ export class RecipesController {
 
   @UseGuards(OptionalJwtAuthGuard)
   @Delete(':id')
-  remove(
+  async remove(
     @Param('id') id: string, 
     @Req() req
   ) {
-
     if (!req.user) {
       throw new UnauthorizedException("You need to authorize first!");
     }

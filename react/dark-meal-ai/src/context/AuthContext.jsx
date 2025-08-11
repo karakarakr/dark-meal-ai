@@ -1,4 +1,4 @@
-import { useContext, createContext, useState } from "react";
+import { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
 import axios from 'axios';
@@ -11,6 +11,54 @@ const AuthProvider = ({ children }) => {
         localStorage.getItem("accessToken") || ""
     );
     const navigate = useNavigate();
+    const api = axios.create({
+        baseURL: "http://localhost:3000",
+        withCredentials: true,
+    });
+
+    api.interceptors.request.use((config) => {
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    });
+
+    api.interceptors.response.use(
+        (res) => res,
+        async (err) => {
+            if (err.response?.status === 401 && !err.config._retry) {
+                err.config._retry = true;
+                try {
+                    const { data } = await axios.post(
+                        "http://localhost:3000/auth/refresh",
+                        {},
+                        { withCredentials: true }
+                    );
+                    setToken(data.accessToken);
+                    localStorage.setItem("accessToken", data.accessToken);
+
+                    err.config.headers.Authorization = `Bearer ${data.accessToken}`;
+                    return api(err.config);
+                } catch {
+                    console.log(`Error occured: ${err}`);
+                }
+            }
+            return Promise.reject(err);
+        }
+    );
+
+    useEffect(() => {
+        if (token) {
+            api.get("/auth/me")
+                .then((res) => {
+                    setUser(res.data);
+                })
+                .catch((err) => {
+                    console.log(`Error occured: ${err}`)
+                });
+        }
+    }, [token]);
+
     const signInSubmit = (values) => {
         const email = values.email;
         const password = values.password;

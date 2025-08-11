@@ -80,7 +80,30 @@ export class AuthService {
 
     async logout(response: any) {
         response.clearCookie('refreshToken');
-
         return { message: 'Logout successful' };
+    }
+
+    async verifyRefreshToken(refreshToken: string) {
+        try {
+            const payload = this.jwtService.verify(refreshToken, {
+                secret: this.configService.get<string>('SECRET_REFRESH_KEY'),
+            });
+            return payload;
+        } catch {
+            throw new UnauthorizedException('Invalid or expired refresh token');
+        }
+    }
+
+    async generateAccessToken(userId: number) {
+        const user = await this.usersService.findOne(userId);
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+
+        const payload = { sub: user.id, email: user.email };
+        return this.jwtService.sign(payload, {
+            secret: this.configService.get<string>('SECRET_ACCESS_KEY'),
+            expiresIn: '15m',
+        });
     }
 }

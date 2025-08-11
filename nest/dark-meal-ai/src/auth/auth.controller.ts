@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Res, Get, UnauthorizedException } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthService } from './auth.service';
@@ -7,6 +7,12 @@ import { OptionalJwtAuthGuard } from './optional-jwt.guard';
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
+
+    @UseGuards(OptionalJwtAuthGuard)
+    @Get('me')
+    async me(@Request() req) {
+        return req.user;
+    }
 
     @Post('login')
     async login(
@@ -38,4 +44,14 @@ export class AuthController {
         return this.authService.logout(response);
     }
 
+    @Post('refresh')
+    async refresh(@Request() req) {
+        const refreshToken = req.cookies['refreshToken'];
+        if (!refreshToken) throw new UnauthorizedException();
+    
+        const payload = await this.authService.verifyRefreshToken(refreshToken);
+        const accessToken = await this.authService.generateAccessToken(payload.sub);
+
+        return { accessToken }
+    }    
 }

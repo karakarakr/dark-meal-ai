@@ -42,4 +42,18 @@ export class RecipesService {
   
     return { message: `Recipe with id ${id} deleted successfully` };
   }
+
+  async count(): Promise<number> {
+    return this.recipesRepository.count();
+  }
+
+  async getChunk(start: number, end: number) {
+    const take = end - start + 1;
+
+    return this.recipesRepository
+      .createQueryBuilder('recipe')
+      .orderBy('recipe.id', 'ASC')
+      .take(take)
+      .getMany();
+  }
 }

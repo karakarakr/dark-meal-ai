@@ -13,15 +13,22 @@ import {
     Paper,
     List,
     Flex,
+    Space,
 } from '@mantine/core';
 import axios from 'axios';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function RecipePage() {
     const { id } = useParams();
+    const auth = useAuth();
+    const navigate = useNavigate();
     const [recipe, setRecipe] = useState({});
     const [author, setAuthor] = useState({});
+    const token = localStorage.getItem('accessToken');
+
     useEffect(() => {
         axios.get(`http://localhost:3000/recipes/${id}`)
           .then(response => {   
@@ -40,6 +47,7 @@ export default function RecipePage() {
         })
         .catch(error =>console.error('Error retrieving author:', error) );
     }, [recipe.authorId]);
+
     const [comments, setComments] = useState([
     {
         id: 1,
@@ -68,6 +76,22 @@ export default function RecipePage() {
         setComments((prev) => [newCommentObj, ...prev]);
         setNewComment('');
     };
+
+    const deleteMeal = () => {
+        axios.delete(
+            `http://localhost:3000/recipes/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
+            .then(response => {
+                console.log(response);
+                console.log('deleted successfully!\n');
+            })
+            .catch(error => console.error(error));
+    };
+
     console.log("ASDAS" + recipe);
     return (
     <Container size="md" py="xl">
@@ -90,18 +114,24 @@ export default function RecipePage() {
                 {recipe.title}
             </Title>
             <Text mb="sm">
-                {recipe.content}
+                {/* {recipe.content} */}
+                <MarkdownPreview source={recipe.content} style={{
+                    background: 'none',
+                    textAlign: 'left',
+                    width: '100%',
+                }} />
             </Text>
-            <Title order={2} mb="sm">
+            <Divider my="md" />
+            <Title order={2} mb="sm" style={{ textAlign: 'left' }}>
                 Ingredients
             </Title>
-            <Text mb="sm">
+            <Text mb="sm" style={{ textAlign: 'left' }}>
                 <List>
                     { 
                         recipe.ingredients &&
                             recipe.ingredients.map((ingredient, index) => (
                                 <List.Item key={index}>
-                                    {ingredient.name}: {ingredient.amount}{ingredient.unit}
+                                    {ingredient.name}: {ingredient.quantity}{ingredient.unit}
                                 </List.Item>
                             ))
                     }
@@ -109,28 +139,40 @@ export default function RecipePage() {
             </Text>
             <Flex justify="space-between" mt="lg" w="100%">
                 <Text size="sm" italic>
-                Created at: {recipe.createdAt}
+                    Created at: {recipe.createdAt}
                 </Text>
                 <Text size="sm" italic>
-                Author email: {author.email}
+                    Author email: {author.email}
                 </Text>
             </Flex>
+            {(auth.user && auth.user.id === author.id) && (
+                <>
+                    <Space h="md"/>
+                    <Group>
+                        <Button>Edit meal</Button>
+                        <Button color="red" onClick={() => {
+                            deleteMeal(); 
+                            navigate('/');
+                        }}>Delete meal</Button>
+                    </Group>
+                </>
+            )}
         </Box>
 
         <Divider my="lg" />
 
         {/* Section 3: Add Comment */}
         <Box mb="xl">
-        <Textarea
-            placeholder="Write your comment..."
-            autosize
-            minRows={3}
-            value={newComment}
-            onChange={(e) => setNewComment(e.currentTarget.value)}
-        />
-        <Button mt="sm" onClick={handleAddComment}>
-            Add Comment
-        </Button>
+            <Textarea
+                placeholder="Write your comment..."
+                autosize
+                minRows={3}
+                value={newComment}
+                onChange={(e) => setNewComment(e.currentTarget.value)}
+            />
+            <Button mt="sm" onClick={handleAddComment}>
+                Add Comment
+            </Button>
         </Box>
 
         <Divider my="lg" />
@@ -139,15 +181,15 @@ export default function RecipePage() {
         <Stack>
         {comments.map((comment) => (
             <Paper key={comment.id} p="md" radius="md" withBorder>
-            <Group align="flex-start" spacing="md">
-                <Box>
-                    <Avatar src={comment.avatar} radius="xl" />
-                    <Text align="center" size="xs" mt="xs">
-                        {comment.author}
-                    </Text>
-                </Box>
-                <Text>{comment.text}</Text>
-            </Group>
+                <Group align="flex-start" spacing="md">
+                    <Box>
+                        <Avatar src={comment.avatar} radius="xl" />
+                        <Text align="center" size="xs" mt="xs">
+                            {comment.author}
+                        </Text>
+                    </Box>
+                    <Text>{comment.text}</Text>
+                </Group>
             </Paper>
         ))}
         </Stack>
