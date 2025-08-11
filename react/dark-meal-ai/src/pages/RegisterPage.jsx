@@ -11,11 +11,9 @@ import {
   Flex
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 
 function RegisterPage() {
-    const navigate = useNavigate();
     const auth = useAuth();
     const form = useForm({
         initialValues: {

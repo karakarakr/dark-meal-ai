@@ -11,106 +11,146 @@ import {
     Avatar,
     Stack,
     Paper,
-  } from '@mantine/core';
-  import { useState } from 'react';
-  
-  export default function RecipePage() {
+    List,
+    Flex,
+} from '@mantine/core';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+
+export default function RecipePage() {
+    const { id } = useParams();
+    const [recipe, setRecipe] = useState({});
+    const [author, setAuthor] = useState({});
+    useEffect(() => {
+        axios.get(`http://localhost:3000/recipes/${id}`)
+          .then(response => {   
+                setRecipe(response.data);
+            })
+          .catch(error => console.error('Error fetching tasks:', error));
+        
+        console.log(`ID: ${recipe.authorId}`);
+      }, []);
+
+    useEffect(() => {
+        axios.get(`http://localhost:3000/users/${recipe.authorId}`)
+        .then(response => {
+            setAuthor(response.data);
+            console.log("Answer is: " + response.data.email);
+        })
+        .catch(error =>console.error('Error retrieving author:', error) );
+    }, [recipe.authorId]);
     const [comments, setComments] = useState([
-      {
+    {
         id: 1,
         author: 'JohnDoe',
         avatar: 'https://i.pravatar.cc/100?img=1',
         text: 'Looks delicious! I will try it soon.',
-      },
-      {
+    },
+    {
         id: 2,
         author: 'JaneSmith',
         avatar: 'https://i.pravatar.cc/100?img=2',
         text: 'Great recipe, thanks for sharing!',
-      },
+    },
     ]);
     const [newComment, setNewComment] = useState('');
-  
+
     const handleAddComment = () => {
-      if (!newComment.trim()) return;
-  
-      const newCommentObj = {
-        id: Date.now(),
-        author: 'CurrentUser',
-        avatar: 'https://i.pravatar.cc/100?img=3',
-        text: newComment,
-      };
-      setComments((prev) => [newCommentObj, ...prev]);
-      setNewComment('');
+        if (!newComment.trim()) return;
+
+        const newCommentObj = {
+            id: Date.now(),
+            author: 'CurrentUser',
+            avatar: 'https://i.pravatar.cc/100?img=3',
+            text: newComment,
+        };
+        setComments((prev) => [newCommentObj, ...prev]);
+        setNewComment('');
     };
-  
+    console.log("ASDAS" + recipe);
     return (
-      <Container size="md" py="xl">
+    <Container size="md" py="xl">
         {/* Section 1: Image */}
         <Box mb="md">
-          <Image
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_8QgpXEXt66DvkNO1dhHkz2EmxbJbsQsLLw&s"
+        <Image
+            src={
+                recipe.imageURL ? recipe.imageURL :
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_8QgpXEXt66DvkNO1dhHkz2EmxbJbsQsLLw&s"
+            }
             radius={10}
             alt="Recipe"
             style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'cover' }}
-          />
+        />
         </Box>
-  
+
         {/* Section 2: Content */}
         <Box mb="xl">
-          <Title order={1} mb="sm">
-            Best Homemade Lasagna
-          </Title>
-          <Text mb="sm">
-            This lasagna recipe is the ultimate comfort food! It’s made with layers of
-            pasta, rich meat sauce, creamy béchamel, and lots of cheese. Perfect for
-            family dinners or special occasions.
-          </Text>
-          <Group position="apart" mt="lg">
-            <Text size="sm" italic>
-              Created at: 2025-08-07
+            <Title order={1} mb="sm">
+                {recipe.title}
+            </Title>
+            <Text mb="sm">
+                {recipe.content}
             </Text>
-            <Text size="sm" italic>
-              Updated at: 2025-08-07
+            <Title order={2} mb="sm">
+                Ingredients
+            </Title>
+            <Text mb="sm">
+                <List>
+                    { 
+                        recipe.ingredients &&
+                            recipe.ingredients.map((ingredient, index) => (
+                                <List.Item key={index}>
+                                    {ingredient.name}: {ingredient.amount}{ingredient.unit}
+                                </List.Item>
+                            ))
+                    }
+                </List>
             </Text>
-          </Group>
+            <Flex justify="space-between" mt="lg" w="100%">
+                <Text size="sm" italic>
+                Created at: {recipe.createdAt}
+                </Text>
+                <Text size="sm" italic>
+                Author email: {author.email}
+                </Text>
+            </Flex>
         </Box>
-  
+
         <Divider my="lg" />
-  
+
         {/* Section 3: Add Comment */}
         <Box mb="xl">
-          <Textarea
+        <Textarea
             placeholder="Write your comment..."
             autosize
             minRows={3}
             value={newComment}
             onChange={(e) => setNewComment(e.currentTarget.value)}
-          />
-          <Button mt="sm" onClick={handleAddComment}>
+        />
+        <Button mt="sm" onClick={handleAddComment}>
             Add Comment
-          </Button>
+        </Button>
         </Box>
-  
+
         <Divider my="lg" />
-  
+
         {/* Section 4: Comments */}
         <Stack>
-          {comments.map((comment) => (
+        {comments.map((comment) => (
             <Paper key={comment.id} p="md" radius="md" withBorder>
-              <Group align="flex-start" spacing="md">
+            <Group align="flex-start" spacing="md">
                 <Box>
-                  <Avatar src={comment.avatar} radius="xl" />
-                  <Text align="center" size="xs" mt="xs">
-                    {comment.author}
-                  </Text>
+                    <Avatar src={comment.avatar} radius="xl" />
+                    <Text align="center" size="xs" mt="xs">
+                        {comment.author}
+                    </Text>
                 </Box>
                 <Text>{comment.text}</Text>
-              </Group>
+            </Group>
             </Paper>
-          ))}
+        ))}
         </Stack>
-      </Container>
+    </Container>
     );
-  }
-  
+}

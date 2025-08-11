@@ -2,15 +2,18 @@ import React from 'react';
 import { Grid, Card, Group, Badge, Button, Image, Text, Space } from '@mantine/core';
 import { Link } from 'react-router-dom';
 
-function ItemMeal({ mealId, title, description, date }) {
+function ItemMeal({ mealId, title, imageURL, description, date }) {
   return (
     <Grid.Col span={4}>
         <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section>
                 <Image
-                src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
+                src={
+                    imageURL ? imageURL :
+                    "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
+                }
                 height={160}
-                alt="Norway"
+                alt="Meal image"
                 />
             </Card.Section>
 

@@ -10,7 +10,7 @@ import {
   Stack,
   Flex,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { Form, useForm } from '@mantine/form';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 
@@ -24,24 +24,6 @@ export default function LoginPage() {
             password: ""
         }
     })
-
-    // const signInSubmit = (values) => {
-    //     const email = values.email;
-    //     const password = values.password;
-
-    //     axios.post('http://localhost:3000/auth/login', {
-    //         email: email,
-    //         password: password
-    //     }).then(function (response) {
-    //             localStorage.setItem('accessToken', response.data['accessToken']);
-    //             const accessToken = localStorage.getItem('accessToken');
-    //             alert(accessToken);
-    //             navigate("/");
-    //         })
-    //         .catch(function (error) {
-    //             console.log(error);
-    //         });
-    // };
 
     return (
         <Flex

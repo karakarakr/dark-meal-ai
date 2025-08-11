@@ -19,7 +19,12 @@ export interface Ingredient {
 export class CreateRecipeDto {
     @IsNotEmpty()
     title: string;
+
+    @IsNotEmpty()
     content: string;
+
+    @IsNotEmpty()
+    imageURL: string;
     
     @IsNotEmpty()
     ingredients: Ingredient[];

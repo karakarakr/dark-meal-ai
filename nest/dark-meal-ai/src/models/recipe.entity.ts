@@ -13,6 +13,9 @@ export class Recipe {
     @Column()
     content: string
 
+    @Column({ nullable: true })
+    imageURL: string
+
     @Column({ type: 'jsonb', nullable: true })
     ingredients: Ingredient[]
 

@@ -21,7 +21,12 @@ export interface Ingredient {
 export class UpdateRecipeDto extends PartialType(CreateRecipeDto) { 
     @IsNotEmpty()
     title: string;
+    
+    @IsNotEmpty()
     content: string;
+
+    @IsNotEmpty()
+    imageURL: string;
     
     @IsNotEmpty()
     ingredients: Ingredient[];

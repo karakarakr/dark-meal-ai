@@ -9,39 +9,25 @@ import {
 import { useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import IngredientItem from './IngredientItem';
-import { RichTextEditor, Link } from '@mantine/tiptap';
-import { useEditor } from '@tiptap/react';
-import Highlight from '@tiptap/extension-highlight';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align';
-import Superscript from '@tiptap/extension-superscript';
-import SubScript from '@tiptap/extension-subscript';
-
-const content =
-  '<h2 style="text-align: center;">Welcome to Mantine rich text editor</h2><p><code>RichTextEditor</code> component focuses on usability and is designed to be as simple as possible to bring a familiar editing experience to regular users. <code>RichTextEditor</code> is based on <a href="https://tiptap.dev/" rel="noopener noreferrer" target="_blank">Tiptap.dev</a> and supports all of its features:</p><ul><li>General text formatting: <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strike-through</s> </li><li>Headings (h1-h6)</li><li>Sub and super scripts (<sup>&lt;sup /&gt;</sup> and <sub>&lt;sub /&gt;</sub> tags)</li><li>Ordered and bullet lists</li><li>Text align&nbsp;</li><li>And all <a href="https://tiptap.dev/extensions" target="_blank" rel="noopener noreferrer">other extensions</a></li></ul>';
-
+import axios from 'axios';
+import MDEditor from '@uiw/react-md-editor';
+import { useAuth } from '../../../context/AuthContext';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 export default function AddRecipeModal({ opened, onClose }) {
+    const auth = useAuth();
+    const navigate = useNavigate();
+    // const form = useForm({
+    // 
+    // ДОДАЙ useForm для обробки даної логіки
+    // 
+    // });
     const [title, setTitle] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [description, setDescription] = useState('');
     const [ingredients, setIngredients] = useState([
         { name: '', quantity: 0, unit: '' },
     ]);
-
-    const editor = useEditor({
-        extensions: [
-          StarterKit,
-          Underline,
-          Link,
-          Superscript,
-          SubScript,
-          Highlight,
-          TextAlign.configure({ types: ['heading', 'paragraph'] }),
-        ],
-        content,
-      });
 
     const handleIngredientChange = (index, updated) => {
         const updatedList = [...ingredients];
@@ -58,6 +44,28 @@ export default function AddRecipeModal({ opened, onClose }) {
         setIngredients(updated);
     };
 
+    const addRecipeToDB = (payload) => {
+        const token = localStorage.getItem('accessToken');
+        console.log(token);
+        axios.post("http://localhost:3000/recipes", {
+            title: payload.title,
+            content: payload.description,
+            imageURL: payload.imageUrl,
+            ingredients: payload.ingredients,
+            authorId: auth.user.id
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then((response) => {
+            console.log(`Response: ${JSON.stringify(response.data.id)}`);
+        })
+        .catch((error) => console.log(error));
+        
+        //axios.get("http://localhowt:3000/recipe")
+    };
+
     const handleSubmit = () => {
         const payload = {
             title,
@@ -66,6 +74,7 @@ export default function AddRecipeModal({ opened, onClose }) {
             ingredients,
         };
         console.log('Saving recipe:', payload);
+        addRecipeToDB(payload);
         onClose();
     };
 
@@ -81,95 +90,59 @@ export default function AddRecipeModal({ opened, onClose }) {
             size="lg"
             centered
             withCloseButton
+            lockScroll={false}
         >
-            <Stack>
-            <TextInput
-                label="Recipe Title"
-                placeholder="e.g. Spaghetti Carbonara"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-            />
-            <TextInput
-                label="Image URL"
-                placeholder="e.g. https://example.com/image.jpg"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-            />
-            <Title order={5} mt="sm">Ingredients</Title>
-            {ingredients.map((ingredient, index) => (
-                <IngredientItem
-                key={index}
-                index={index}
-                ingredient={ingredient}
-                onChange={handleIngredientChange}
-                onRemove={handleRemoveIngredient}
-                />
-            ))}
-            <Button
-                variant="light"
-                leftSection={<IconPlus size={16} />}
-                onClick={handleAddIngredient}
-            >
-                Add Ingredient
-            </Button>
+            <form>
+                <Stack>
+                    <TextInput
+                        label="Recipe Title"
+                        placeholder="e.g. Spaghetti Carbonara"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                    />
+                    <TextInput
+                        label="Image URL"
+                        placeholder="e.g. https://example.com/image.jpg"
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                    />
+                    <Title order={5} mt="sm">Ingredients</Title>
+                    {ingredients.map((ingredient, index) => (
+                        <IngredientItem
+                        key={index}
+                        index={index}
+                        ingredient={ingredient}
+                        onChange={handleIngredientChange}
+                        onRemove={handleRemoveIngredient}
+                        />
+                    ))}
+                    <Button
+                        variant="light"
+                        leftSection={<IconPlus size={16} />}
+                        onClick={handleAddIngredient}
+                    >
+                        Add Ingredient
+                    </Button>
 
-            <RichTextEditor editor={editor}>
-                <RichTextEditor.Toolbar sticky stickyOffset="var(--docs-header-height)">
-                    <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.Bold />
-                        <RichTextEditor.Italic />
-                        <RichTextEditor.Underline />
-                        <RichTextEditor.Strikethrough />
-                        <RichTextEditor.ClearFormatting />
-                        <RichTextEditor.Highlight />
-                        <RichTextEditor.Code />
-                    </RichTextEditor.ControlsGroup>
+                    {/* Add here markdown editor */}
+                    <MDEditor
+                        value={description}
+                        onChange={setDescription}
+                    />
+                    <MDEditor.Markdown 
+                        source={description} 
+                        style={{ whiteSpace: 'pre-wrap' }} 
+                    />
 
-                    <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.H1 />
-                        <RichTextEditor.H2 />
-                        <RichTextEditor.H3 />
-                        <RichTextEditor.H4 />
-                    </RichTextEditor.ControlsGroup>
-
-                    <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.Blockquote />
-                        <RichTextEditor.Hr />
-                        <RichTextEditor.BulletList />
-                        <RichTextEditor.OrderedList />
-                        <RichTextEditor.Subscript />
-                        <RichTextEditor.Superscript />
-                    </RichTextEditor.ControlsGroup>
-
-                    <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.Link />
-                        <RichTextEditor.Unlink />
-                    </RichTextEditor.ControlsGroup>
-
-                    <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.AlignLeft />
-                        <RichTextEditor.AlignCenter />
-                        <RichTextEditor.AlignJustify />
-                        <RichTextEditor.AlignRight />
-                    </RichTextEditor.ControlsGroup>
-
-                    <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.Undo />
-                        <RichTextEditor.Redo />
-                    </RichTextEditor.ControlsGroup>
-                </RichTextEditor.Toolbar>
-
-                <RichTextEditor.Content />
-            </RichTextEditor>
-
-            <Group justify="flex-end" mt="md">
-                <Button variant="default" onClick={handleCancel}>
-                    Cancel
-                </Button>
-                <Button onClick={handleSubmit}>Save</Button>
-            </Group>
-            </Stack>
+                    <Group justify="flex-end" mt="md">
+                        <Button variant="default" onClick={handleCancel}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSubmit}>Save</Button>
+                    </Group>
+                </Stack>
+            </form>
         </Modal>
     );
 }
