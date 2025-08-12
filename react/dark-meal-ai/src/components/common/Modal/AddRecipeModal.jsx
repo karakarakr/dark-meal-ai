@@ -12,16 +12,20 @@ import IngredientItem from './IngredientItem';
 import axios from 'axios';
 import MDEditor from '@uiw/react-md-editor';
 import { useAuth } from '../../../context/AuthContext';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { usePuter } from '../../../hooks/usePuter';
 
 export default function AddRecipeModal({ opened, onClose }) {
     const auth = useAuth();
     const navigate = useNavigate();
+    const puter = usePuter();
+
     // const form = useForm({
     // 
     // ДОДАЙ useForm для обробки даної логіки
     // 
     // });
+
     const [title, setTitle] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [description, setDescription] = useState('');
@@ -43,6 +47,23 @@ export default function AddRecipeModal({ opened, onClose }) {
         const updated = ingredients.filter((_, i) => i !== index);
         setIngredients(updated);
     };
+
+    const fillWithGPT = async () => {
+        alert('clicked');
+        puter.ai.chat(`
+You are an api, who sends only pure JSON responses.
+You've been asked to generate a "${title}" recipe JSON using next schema:
+
+{
+title: TITLE_OF_RECIPE,
+content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN,
+}    
+        `).then(res => {
+            const parsedData = JSON.parse(res.message.content);
+            setTitle(parsedData.title);
+            setDescription(parsedData.content);
+        });
+    }
 
     const addRecipeToDB = (payload) => {
         const token = localStorage.getItem('accessToken');
@@ -123,6 +144,18 @@ export default function AddRecipeModal({ opened, onClose }) {
                         onClick={handleAddIngredient}
                     >
                         Add Ingredient
+                    </Button>
+                    <Button
+                        leftSection={
+                            <img 
+                                width='20' 
+                                height='20' 
+                                src='https://static.thenounproject.com/png/7262146-200.png' 
+                            />}
+                        onClick={() => fillWithGPT()}
+                        style={{backgroundColor: 'white', color: 'black'}}
+                    >
+                        Ask AI to fill up
                     </Button>
 
                     {/* Add here markdown editor */}

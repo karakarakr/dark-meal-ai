@@ -17,7 +17,7 @@ export class AuthController {
     @Post('login')
     async login(
         @Body() SignInDto: SignInDto,
-        @Res({ passthrough: true }) response: Response
+        @Res({ passthrough: true }) response: Express.Response
     ) {
         
         const { retrievedUser, accessToken, refreshToken } = await this.authService.login(SignInDto, response);
@@ -29,7 +29,6 @@ export class AuthController {
         //     path: '/',
         //     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 днів
         // });
-
         return { retrievedUser, accessToken, refreshToken };
     }
 

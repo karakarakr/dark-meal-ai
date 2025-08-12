@@ -3,7 +3,7 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from 'src/models/recipe.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 
 @Injectable()
 export class RecipesService {
@@ -18,6 +18,16 @@ export class RecipesService {
       createdAt: new Date(),
     });
     return await this.recipesRepository.save(recipe);
+  }
+
+  async searchByWord(q: string) {
+    console.log(q);
+    return await this.recipesRepository.find({
+      where: [
+        {title: ILike(`%${q}%`)},
+        {content: ILike(`%${q}%`)},
+      ]
+    });
   }
 
   async findAll() {
@@ -43,17 +53,35 @@ export class RecipesService {
     return { message: `Recipe with id ${id} deleted successfully` };
   }
 
-  async count(): Promise<number> {
+  async count(q: string): Promise<number> {
+    if (q) {
+      return this.recipesRepository.count({
+        where: [
+          {title: ILike(`%${q}%`)},
+          {content: ILike(`%${q}%`)},
+        ] 
+      });
+    }
     return this.recipesRepository.count();
   }
 
-  async getChunk(start: number, end: number) {
-    const take = end - start + 1;
+  async getChunk(page: number, limit: number, search: string) {
+    const skip = (page - 1) * limit;
 
-    return this.recipesRepository
-      .createQueryBuilder('recipe')
-      .orderBy('recipe.id', 'ASC')
-      .take(take)
-      .getMany();
+    if (search) {
+      return this.recipesRepository.find({
+        where: [
+          {title: ILike(`%${search}%`)},
+          {content: ILike(`%${search}%`)},
+        ],
+        skip: skip,
+        take: limit,
+      });
+    }
+
+    return this.recipesRepository.find({
+      skip: skip,
+      take: limit,
+    });
   }
 }

@@ -1,7 +1,3 @@
-// MAKE RELATIONSHIP LOGIC
-// TO CREATE MEALS WITH ONE-TO-MANY RE
-
-
 import { 
   Controller, 
   Get, 
@@ -13,7 +9,7 @@ import {
   UseGuards, 
   Req, 
   UnauthorizedException,
-  ForbiddenException
+  Query
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -46,17 +42,27 @@ export class RecipesController {
     return this.recipesService.findAll();
   }
 
-  @Get('count')
-  async getCount() {
-    return this.recipesService.count();
+  @Get('search')
+  async searchByWord(
+    @Query('q') q: string
+  ) {
+    return this.recipesService.searchByWord(q);
   }
 
-  @Get('chunk/:start/:end')
-  async getChunk(
-    @Param('start') start: number, 
-    @Param('end') end: number
+  @Get('count')
+  async getCount(
+    @Query('q') q: string
   ) {
-    return this.recipesService.getChunk(start, end);
+    return this.recipesService.count(q);
+  }
+
+  @Get('chunk')
+  async getChunk(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query() query: Record<string, any>
+  ) {
+    return this.recipesService.getChunk(page, limit, query.q);
   }
 
   @Get(':id')

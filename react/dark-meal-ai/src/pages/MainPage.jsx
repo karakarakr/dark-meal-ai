@@ -8,63 +8,65 @@ import { useAuth } from '../context/AuthContext';
 import { useDisclosure } from '@mantine/hooks';
 import AddRecipeModal from '../components/common/Modal/AddRecipeModal';
 
-function chunkData(array, size) {
-    if (!array.length) {
-      return [];
-    }
-    const head = array.slice(0, size);
-    const tail = array.slice(size);
-    return [head, ...chunkData(tail, size)];
-}
+function stripHTMLandMarkdown(text) {
+    let cleaned = text.replace(/<\/?[^>]+(>|$)/g, "");
+  
+    cleaned = cleaned
+      .replace(/(\*\*|__)(.*?)\1/g, "$2") 
+      .replace(/(\*|_)(.*?)\1/g, "$2")
+      .replace(/`{1,3}(.*?)`{1,3}/g, "$1")
+      .replace(/~~(.*?)~~/g, "$1")
+      .replace(/!\[.*?\]\(.*?\)/g, "")
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
+      .replace(/^\s{0,3}>\s?/gm, "")
+      .replace(/^\s{0,3}[-*+]\s+/gm, "")
+      .replace(/^\s*\d+\.\s+/gm, "")
+      .replace(/#{1,6}\s*/g, "");
+  
+    return cleaned.trim();
+  }
 
 function MainPage() {
     const [recipes, setRecipes] = useState([]);
     const [count, setCount] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
     const [opened, { open, close }] = useDisclosure(false);
     const [page, setPage] = useState(1);
     const auth = useAuth();
     const limit = 6;
 
-    // 
-    // ДОРОБИТИ МЕХАНІЗМ БЕКЕНД ПАГІНАЦІЇ
-    // 
-
     useEffect(() => {
-      axios.get(`http://localhost:3000/recipes/chunk/${page+((page-1)*limit)}/${page+(page*limit)}`)
-        .then(response => setRecipes(
-                [...response.data]
-            )
+        axios.get(
+            `http://localhost:3000/recipes/chunk?page=${page}&limit=${limit}&q=${searchQuery}`
         )
-        .catch(error => console.error('Error fetching tasks:', error));
-    }, [opened, page]);
+            .then(response => setRecipes(
+                    [...response.data]
+                )
+            )
+            .catch(error => console.error('Error fetching tasks:', error));
+   }, [opened, page, searchQuery]);
 
     useEffect(() => {
-        axios.get('http://localhost:3000/recipes/count')
+        axios.get(`http://localhost:3000/recipes/count?q=${searchQuery}`)
             .then(response => {
-                console.log(response.data);
                 setCount(response.data);
             })
             .catch(error => console.error('Error fetching tasks:', error));
-    }, [opened, page]);
+        console.log('Changing page...');
+    }, [opened, page, searchQuery]);
 
-    const total = recipes.length;
+    const total = count;
     const totalPages = Math.ceil(total / limit);
-    console.log(JSON.stringify(recipes));
-    const chunkedRecipes = chunkData(recipes, limit);
-    console.log(`ARRAY HERE: ${Array.from(chunkedRecipes)}`);
-    
-    const items = (chunkedRecipes[page - 1] || []).map((recipe) => (
+    const items = recipes.map((recipe) => (
         <ItemMeal 
             key={recipe.id}
             mealId={recipe.id}
             title={recipe.title}
             imageURL={recipe.imageURL}
-            description={recipe.content} 
+            description={stripHTMLandMarkdown(recipe.content)} 
             date={recipe.createdAt}
         />
     ));
-    console.log(`CHUNKED DATA: ${JSON.stringify(chunkedRecipes[page - 1], NaN, 2)}`);
-    console.log(JSON.stringify(auth.user));
 
     return (
         <>
@@ -72,8 +74,19 @@ function MainPage() {
                 <TextInput
                     placeholder="Search meals..."
                     leftSection={<IconSearch size={16} />}
-                    style={{ flexGrow: 1, maxWidth: 400 }}
+                    style={{ 
+                        flexGrow: 1, 
+                        maxWidth: 400 
+                    }}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                 />
+                {/* <Space w="md"/> */}
+                {/* <Button 
+                    onClick={searchItem} 
+                    variant='default'
+                >
+                    Search
+                </Button> */}
 
                 {auth.user && (
                     <>
