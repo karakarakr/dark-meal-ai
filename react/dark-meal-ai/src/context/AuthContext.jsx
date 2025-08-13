@@ -114,10 +114,10 @@ const AuthProvider = ({ children }) => {
         setUser(null);
         setToken("");
         localStorage.removeItem("accessToken");
-        axios.post('http://localhost:3000/auth/logout').then(function (response) {
+        axios.post('http://localhost:3000/auth/logout').then((response) => {
                 navigate("/signin");
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
             });
     };

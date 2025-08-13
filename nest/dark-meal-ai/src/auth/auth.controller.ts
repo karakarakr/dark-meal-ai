@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, Res, Get, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Res, Req, Get, UnauthorizedException } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthService } from './auth.service';
@@ -45,7 +45,9 @@ export class AuthController {
 
     @Post('refresh')
     async refresh(@Request() req) {
+        console.log(req.cookies);
         const refreshToken = req.cookies['refreshToken'];
+        console.log(refreshToken);
         if (!refreshToken) throw new UnauthorizedException();
     
         const payload = await this.authService.verifyRefreshToken(refreshToken);

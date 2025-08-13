@@ -10,7 +10,7 @@ function ItemMeal({ mealId, title, imageURL, description }) {
                     <Image
                         src={
                             imageURL ? imageURL :
-                            "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
+                            "https://res.cloudinary.com/ddkwopn8u/image/upload/v1755092431/qql62pjlj5szyv5pqoe8.png"
                         }
                         height={160}
                         alt="Meal image"

@@ -76,12 +76,14 @@ export class RecipesService {
         ],
         skip: skip,
         take: limit,
+        order: { createdAt: 'DESC' }
       });
     }
 
     return this.recipesRepository.find({
       skip: skip,
       take: limit,
+      order: { createdAt: 'DESC' }
     });
   }
 }

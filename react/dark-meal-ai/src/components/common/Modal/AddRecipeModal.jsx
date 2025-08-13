@@ -14,8 +14,16 @@ import MDEditor from '@uiw/react-md-editor';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { usePuter } from '../../../hooks/usePuter';
-import { useDisclosure } from '@mantine/hooks';
+import DropZone from './DropZone';
 
+
+// { label: 'Grams (g)', value: 'g' },
+//   { label: 'Kilograms (kg)', value: 'kg' },
+//   { label: 'Milliliters (ml)', value: 'ml' },
+//   { label: 'Liters (l)', value: 'l' },
+//   { label: 'Teaspoon (tsp)', value: 'tsp' },
+//   { label: 'Tablespoon (tbsp)', value: 'tbsp' },
+//   { label: 'Pieces (pcs)', value: 'pcs' },
 export default function AddRecipeModal({ opened, onClose }) {
     const auth = useAuth();
     const navigate = useNavigate();
@@ -54,16 +62,19 @@ export default function AddRecipeModal({ opened, onClose }) {
     const fillWithGPT = () => {
         puter.ai.chat(`
 You are an api, who sends only pure JSON responses.
-You've been asked to generate a "${title}" recipe JSON using next schema:
+You've been asked to generate a "${(title || 'Random recipe')}" recipe JSON using next schema:
 
 {
 title: TITLE_OF_RECIPE,
-content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN,
+content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN( No ingredients in content, only description and steps ),
+ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: NUMBER, unit: 'g' or 'kg' or 'ml' or 'l' or 'tsp' or 'tbsp' or 'pcs' } )
 }    
         `).then(res => {
             const parsedData = JSON.parse(res.message.content);
             setTitle(parsedData.title);
             setDescription(parsedData.content);
+            setIngredients(parsedData.ingredients);
+            // console.log(`JSON INGREDIENTS: ${parsedData.ingredients}`);
         })
         .catch((err) => console.log(err))
         .finally(() => setLoading(false));
@@ -87,8 +98,6 @@ content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN,
             console.log(`Response: ${JSON.stringify(response.data.id)}`);
         })
         .catch((error) => console.log(error));
-        
-        //axios.get("http://localhowt:3000/recipe")
     };
 
     const handleSubmit = () => {
@@ -131,6 +140,10 @@ content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN,
                         placeholder="e.g. https://example.com/image.jpg"
                         value={imageUrl}
                         onChange={(e) => setImageUrl(e.target.value)}
+                    />
+                    <DropZone
+                        imageURL={imageUrl}
+                        setImageURL={setImageUrl}
                     />
                     <Title order={5} mt="sm">Ingredients</Title>
                     {ingredients.map((ingredient, index) => (

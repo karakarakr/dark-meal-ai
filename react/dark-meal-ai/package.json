@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.21.0",
+    "@mantine/dropzone": "^8.2.4",
     "@mantine/form": "^8.2.4",
     "@mantine/notifications": "^8.2.4",
     "@mantinex/mantine-logo": "^2.0.0",

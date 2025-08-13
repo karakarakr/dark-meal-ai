@@ -80,13 +80,6 @@ function MainPage() {
                     }}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                {/* <Space w="md"/> */}
-                {/* <Button 
-                    onClick={searchItem} 
-                    variant='default'
-                >
-                    Search
-                </Button> */}
 
                 {auth.user && (
                     <>

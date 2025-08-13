@@ -100,7 +100,7 @@ export default function RecipePage() {
         <Image
             src={
                 recipe.imageURL ? recipe.imageURL :
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_8QgpXEXt66DvkNO1dhHkz2EmxbJbsQsLLw&s"
+                "https://res.cloudinary.com/ddkwopn8u/image/upload/v1755092431/qql62pjlj5szyv5pqoe8.png"
             }
             radius={10}
             alt="Recipe"
