@@ -14,11 +14,14 @@ import MDEditor from '@uiw/react-md-editor';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { usePuter } from '../../../hooks/usePuter';
+import { useDisclosure } from '@mantine/hooks';
 
 export default function AddRecipeModal({ opened, onClose }) {
     const auth = useAuth();
     const navigate = useNavigate();
     const puter = usePuter();
+    //const [loading, { toggle }] = useDisclosure();
+    const [loading, setLoading] = useState(false);
 
     // const form = useForm({
     // 
@@ -48,8 +51,7 @@ export default function AddRecipeModal({ opened, onClose }) {
         setIngredients(updated);
     };
 
-    const fillWithGPT = async () => {
-        alert('clicked');
+    const fillWithGPT = () => {
         puter.ai.chat(`
 You are an api, who sends only pure JSON responses.
 You've been asked to generate a "${title}" recipe JSON using next schema:
@@ -62,7 +64,9 @@ content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN,
             const parsedData = JSON.parse(res.message.content);
             setTitle(parsedData.title);
             setDescription(parsedData.content);
-        });
+        })
+        .catch((err) => console.log(err))
+        .finally(() => setLoading(false));
     }
 
     const addRecipeToDB = (payload) => {
@@ -152,8 +156,12 @@ content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN,
                                 height='20' 
                                 src='https://static.thenounproject.com/png/7262146-200.png' 
                             />}
-                        onClick={() => fillWithGPT()}
+                        onClick={() => {
+                            setLoading(true);
+                            fillWithGPT();
+                        }}
                         style={{backgroundColor: 'white', color: 'black'}}
+                        loading={loading}
                     >
                         Ask AI to fill up
                     </Button>
