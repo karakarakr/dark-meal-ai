@@ -82,7 +82,7 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
 
     const addRecipeToDB = (payload) => {
         const token = localStorage.getItem('accessToken');
-        console.log(token);
+        console.log(`RECIPE TOKEN: ${token}`);
         axios.post("http://localhost:3000/recipes", {
             title: payload.title,
             content: payload.description,

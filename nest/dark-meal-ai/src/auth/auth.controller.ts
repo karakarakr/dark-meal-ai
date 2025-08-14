@@ -3,6 +3,7 @@ import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthService } from './auth.service';
 import { OptionalJwtAuthGuard } from './optional-jwt.guard';
+import express from 'express'
 
 @Controller('auth')
 export class AuthController {
@@ -11,25 +12,24 @@ export class AuthController {
     @UseGuards(OptionalJwtAuthGuard)
     @Get('me')
     async me(@Request() req) {
-        return req.user;
+        return this.authService.getMe(req);
     }
 
     @Post('login')
     async login(
         @Body() SignInDto: SignInDto,
-        @Res({ passthrough: true }) response: Express.Response
+        @Res({ passthrough: true }) response: express.Response
     ) {
         
-        const { retrievedUser, accessToken, refreshToken } = await this.authService.login(SignInDto, response);
+        const { retrievedUser, accessToken, refreshToken } = await this.authService.login(SignInDto);
         console.log(JSON.stringify(retrievedUser));
-        // response.setCookie('refreshToken', refreshToken, {
-        //     httpOnly: true,
-        //     secure: true,
-        //     sameSite: 'strict',
-        //     path: '/',
-        //     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 днів
-        // });
-        return { retrievedUser, accessToken, refreshToken };
+        response.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: false,
+            path: '/',
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 днів
+        });
+        return { retrievedUser, accessToken };
     }
 
     @Post('register')
@@ -45,12 +45,13 @@ export class AuthController {
 
     @Post('refresh')
     async refresh(@Request() req) {
-        console.log(req.cookies);
         const refreshToken = req.cookies['refreshToken'];
-        console.log(refreshToken);
+        console.log(`REFRESH TOKEN: ${refreshToken}`);
+        
         if (!refreshToken) throw new UnauthorizedException();
     
         const payload = await this.authService.verifyRefreshToken(refreshToken);
+        console.log(`SUB: ${payload.sub}`);
         const accessToken = await this.authService.generateAccessToken(payload.sub);
 
         return { accessToken }

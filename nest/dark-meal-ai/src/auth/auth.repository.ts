@@ -10,15 +10,4 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class UsersRepository {
-  // private users = []; // Just for example, use DB in real app
-
-  // async findByEmail(email: string) {
-  //   return this.users.find(user => user.email === email);
-  // }
-
-  // async create(user: any) {
-  //   this.users.push(user);
-  //   return user;
-  // }
-}
+export class UsersRepository {}

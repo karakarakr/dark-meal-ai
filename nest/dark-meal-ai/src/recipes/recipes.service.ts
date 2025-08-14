@@ -53,7 +53,15 @@ export class RecipesService {
     return { message: `Recipe with id ${id} deleted successfully` };
   }
 
-  async count(q: string): Promise<number> {
+  async count(q: string, otherQueries: any): Promise<number> {
+    if (otherQueries.userId) {
+      return this.recipesRepository.count({
+        where: [
+          {authorId: otherQueries.userId}
+        ] 
+      });
+    }
+    
     if (q) {
       return this.recipesRepository.count({
         where: [
@@ -65,14 +73,26 @@ export class RecipesService {
     return this.recipesRepository.count();
   }
 
-  async getChunk(page: number, limit: number, search: string) {
+  async getChunk(page: number, limit: number, otherQuery: any) {
     const skip = (page - 1) * limit;
+    // const requests = [];
 
-    if (search) {
+    if (otherQuery.search) {
       return this.recipesRepository.find({
         where: [
-          {title: ILike(`%${search}%`)},
-          {content: ILike(`%${search}%`)},
+          {title: ILike(`%${otherQuery.search}%`)},
+          {content: ILike(`%${otherQuery.search}%`)},
+        ],
+        skip: skip,
+        take: limit,
+        order: { createdAt: 'DESC' }
+      });
+    }
+
+    if (otherQuery.userId) {
+      return await this.recipesRepository.find({
+        where: [
+          {authorId: otherQuery.userId}
         ],
         skip: skip,
         take: limit,

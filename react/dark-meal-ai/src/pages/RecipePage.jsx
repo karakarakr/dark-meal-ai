@@ -18,7 +18,7 @@ import {
 import axios from 'axios';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function RecipePage() {
@@ -142,7 +142,7 @@ export default function RecipePage() {
                     Created at: {recipe.createdAt}
                 </Text>
                 <Text size="sm" italic>
-                    Author email: {author.email}
+                    Author email: <Link to={`/user/${recipe.authorId}`}>{author.email}</Link>
                 </Text>
             </Flex>
             {(auth.user && auth.user.id === author.id) && (

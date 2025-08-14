@@ -13,6 +13,7 @@ import MainPage from './pages/MainPage.jsx';
 import RecipePage from './pages/RecipePage.jsx';
 import { Notifications } from '@mantine/notifications';
 import ErrorPage from './pages/ErrorPage.jsx';
+import { UserPage } from './pages/UserPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
         path: "/recipe/:id",
         element: <RecipePage/>
       },
+      {
+        path: "/user/:id",
+        element: <UserPage/>
+      }
     ]
   },
 ]);

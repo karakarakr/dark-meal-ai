@@ -14,7 +14,7 @@ export class AuthService {
         private configService: ConfigService,
     ) {}
 
-    async login(signinUser: SignInDto, response: any): Promise<any> {
+    async login(signinUser: SignInDto): Promise<any> {
         const user = await this.usersService.findOneByEmail(signinUser.email);
         if (!user) {
             throw new UnauthorizedException('Invalid credentials: no such user exist');
@@ -29,6 +29,7 @@ export class AuthService {
         const payload = { sub: user.id, email: user.email };
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>('SECRET_ACCESS_KEY'),
+            // expiresIn: '15m',
             expiresIn: '15m',
         });
 
@@ -37,17 +38,17 @@ export class AuthService {
             expiresIn: '30d',
         });
 
-        response.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            sameSite: 'strict',
-            path: '/',
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-        });
+        // response.cookie('refreshToken', refreshToken, {
+        //     httpOnly: true,
+        //     sameSite: 'strict',
+        //     path: '/',
+        //     maxAge: 30 * 24 * 60 * 60 * 1000,
+        // });
 
         return {
             retrievedUser,
             accessToken,
-            refreshToken,
+            refreshToken
         };
     }
 
@@ -63,6 +64,7 @@ export class AuthService {
 
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>('SECRET_ACCESS_KEY'),
+            // expiresIn: '15m',
             expiresIn: '15m',
         });
 
@@ -72,8 +74,7 @@ export class AuthService {
         });
 
         return {
-            accessToken,
-            refreshToken,
+            accessToken
         };
     }
 
@@ -91,6 +92,13 @@ export class AuthService {
         } catch {
             throw new UnauthorizedException('Invalid or expired refresh token');
         }
+    }
+
+    async getMe(req: any) {
+        if (!req.user) {
+            throw new UnauthorizedException('Invalid or expired access token');
+        }
+        return req.user;
     }
 
     async generateAccessToken(userId: number) {

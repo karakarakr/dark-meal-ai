@@ -21,21 +21,6 @@ function RegisterPage() {
             password: ""
         }
     })
-
-    // const signUpSubmit = (values) => {
-    //     const email = values.email;
-    //     const password = values.password;
-
-    //     axios.post('http://localhost:3000/auth/register', {
-    //         email: email,
-    //         password: password
-    //     }).then(function (response) {
-    //             navigate("/signin");
-    //         })
-    //         .catch(function (error) {
-    //             console.log(error);
-    //         });
-    // };
     
     return (
         <Flex

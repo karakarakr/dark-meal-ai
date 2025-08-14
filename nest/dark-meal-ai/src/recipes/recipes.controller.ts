@@ -51,9 +51,10 @@ export class RecipesController {
 
   @Get('count')
   async getCount(
-    @Query('q') q: string
+    @Query('q') q: string,
+    @Query() otherQueries: Record<string, any>
   ) {
-    return this.recipesService.count(q);
+    return this.recipesService.count(q, otherQueries);
   }
 
   @Get('chunk')
@@ -62,7 +63,7 @@ export class RecipesController {
     @Query('limit') limit: number,
     @Query() query: Record<string, any>
   ) {
-    return this.recipesService.getChunk(page, limit, query.q);
+    return this.recipesService.getChunk(page, limit, query);
   }
 
   @Get(':id')
