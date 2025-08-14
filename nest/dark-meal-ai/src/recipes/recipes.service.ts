@@ -54,53 +54,40 @@ export class RecipesService {
   }
 
   async count(q: string, otherQueries: any): Promise<number> {
+    const requests: Array<object> = [];
     if (otherQueries.userId) {
-      return this.recipesRepository.count({
-        where: [
-          {authorId: otherQueries.userId}
-        ] 
-      });
+      requests.push({authorId: otherQueries.userId});
     }
     
     if (q) {
-      return this.recipesRepository.count({
-        where: [
-          {title: ILike(`%${q}%`)},
-          {content: ILike(`%${q}%`)},
-        ] 
-      });
+      requests.push(
+        {title: ILike(`%${q}%`)},
+        {content: ILike(`%${q}%`)}
+      );
     }
-    return this.recipesRepository.count();
+    return this.recipesRepository.count({
+      where: requests
+    });
   }
 
-  async getChunk(page: number, limit: number, otherQuery: any) {
+  async getChunk(page: number, limit: number, otherQueries: any) {
     const skip = (page - 1) * limit;
-    // const requests = [];
-
-    if (otherQuery.search) {
-      return this.recipesRepository.find({
-        where: [
-          {title: ILike(`%${otherQuery.search}%`)},
-          {content: ILike(`%${otherQuery.search}%`)},
-        ],
-        skip: skip,
-        take: limit,
-        order: { createdAt: 'DESC' }
-      });
+    const requests: object = {};
+    if (otherQueries.userId) {
+      requests['authorId'] = otherQueries.userId;
     }
-
-    if (otherQuery.userId) {
-      return await this.recipesRepository.find({
-        where: [
-          {authorId: otherQuery.userId}
-        ],
-        skip: skip,
-        take: limit,
-        order: { createdAt: 'DESC' }
-      });
+    
+    if (otherQueries.q) {
+      requests['title'] = ILike(`%${otherQueries.q}%`);
+      requests['content'] = ILike(`%${otherQueries.q}%`);
     }
 
     return this.recipesRepository.find({
+      where: [
+        {authorId: requests['authorId'], title: requests['title']},
+        {authorId: requests['authorId'], content: requests['content']},
+        {authorId: requests['authorId']},
+      ],
       skip: skip,
       take: limit,
       order: { createdAt: 'DESC' }

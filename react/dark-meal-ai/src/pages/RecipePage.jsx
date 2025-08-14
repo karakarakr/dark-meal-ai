@@ -20,6 +20,8 @@ import MarkdownPreview from '@uiw/react-markdown-preview';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDisclosure } from '@mantine/hooks';
+import ChangeRecipeModal from '../components/common/Modal/ChangeRecipeModal';
 
 export default function RecipePage() {
     const { id } = useParams();
@@ -27,6 +29,7 @@ export default function RecipePage() {
     const navigate = useNavigate();
     const [recipe, setRecipe] = useState({});
     const [author, setAuthor] = useState({});
+    const [opened, { open, close }] = useDisclosure(false);
     const token = localStorage.getItem('accessToken');
 
     useEffect(() => {
@@ -149,11 +152,17 @@ export default function RecipePage() {
                 <>
                     <Space h="md"/>
                     <Group>
-                        <Button>Edit meal</Button>
+                        <Button onClick={open}>Edit meal</Button>
                         <Button color="red" onClick={() => {
                             deleteMeal(); 
                             navigate('/');
                         }}>Delete meal</Button>
+                        <ChangeRecipeModal 
+                            opened={opened} 
+                            onClose={close} 
+                            existingData={recipe}
+                            id={id}
+                        />
                     </Group>
                 </>
             )}

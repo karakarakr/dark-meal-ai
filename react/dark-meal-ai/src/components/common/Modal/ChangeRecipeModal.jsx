@@ -6,7 +6,7 @@ import {
     Group,
     Title,
 } from '@mantine/core';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import IngredientItem from './IngredientItem';
 import axios from 'axios';
@@ -16,11 +16,10 @@ import { useNavigate } from 'react-router-dom';
 import { usePuter } from '../../../hooks/usePuter';
 import DropZone from './DropZone';
 
-export default function AddRecipeModal({ opened, onClose }) {
+export default function ChangeRecipeModal({ opened, onClose, existingData, id }) {
     const auth = useAuth();
     const navigate = useNavigate();
     const puter = usePuter();
-
     const [loading, setLoading] = useState(false);
 
     const [title, setTitle] = useState('');
@@ -29,6 +28,13 @@ export default function AddRecipeModal({ opened, onClose }) {
     const [ingredients, setIngredients] = useState([
         { name: '', quantity: 0, unit: '' },
     ]);
+
+    useEffect(() => {
+        setTitle(existingData.title);
+        setDescription(existingData.content);
+        setIngredients(existingData.ingredients);
+        setImageUrl(existingData.imageURL);
+    }, []);
 
     const handleIngredientChange = (index, updated) => {
         const updatedList = [...ingredients];
@@ -65,15 +71,14 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
         .finally(() => setLoading(false));
     }
 
-    const addRecipeToDB = (payload) => {
+    const updateRecipeToDB = (payload) => {
         const token = localStorage.getItem('accessToken');
         console.log(`RECIPE TOKEN: ${token}`);
-        axios.post("http://localhost:3000/recipes", {
+        axios.patch(`http://localhost:3000/recipes/${id}`, {
             title: payload.title,
             content: payload.description,
             imageURL: payload.imageUrl,
             ingredients: payload.ingredients,
-            authorId: auth.user.id
         }, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -93,7 +98,7 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
             ingredients,
         };
         console.log('Saving recipe:', payload);
-        addRecipeToDB(payload);
+        updateRecipeToDB(payload);
         onClose();
     };
 
@@ -164,7 +169,6 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
                         Ask AI to fill up
                     </Button>
 
-                    {/* Add here markdown editor */}
                     <MDEditor
                         value={description}
                         onChange={setDescription}

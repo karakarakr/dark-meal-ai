@@ -71,7 +71,6 @@ function MainPage() {
                         <AddRecipeModal 
                             opened={opened} 
                             onClose={close} 
-                            title="Authentication"
                         />  
                     </>
                 )}
