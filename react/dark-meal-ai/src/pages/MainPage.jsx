@@ -48,6 +48,7 @@ function MainPage() {
             imageURL={recipe.imageURL}
             description={stripHTMLandMarkdown(recipe.content)} 
             date={recipe.createdAt}
+            difficulty={recipe.difficulty}
         />
     ));
 

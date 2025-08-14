@@ -15,6 +15,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { usePuter } from '../../../hooks/usePuter';
 import DropZone from './DropZone';
+import { Select, NumberInput } from '@mantine/core';
 
 export default function AddRecipeModal({ opened, onClose }) {
     const auth = useAuth();
@@ -29,6 +30,10 @@ export default function AddRecipeModal({ opened, onClose }) {
     const [ingredients, setIngredients] = useState([
         { name: '', quantity: 0, unit: '' },
     ]);
+    const [cookingTime, setCookingTime] = useState({
+        hours: 0, minutes: 0
+    });
+    const [difficulty, setDifficulty] = useState('');
 
     const handleIngredientChange = (index, updated) => {
         const updatedList = [...ingredients];
@@ -45,6 +50,15 @@ export default function AddRecipeModal({ opened, onClose }) {
         setIngredients(updated);
     };
 
+    const clearFiels = () => {
+        setTitle('');
+        setImageUrl('');
+        setDescription('');
+        setIngredients([{ name: '', quantity: 0, unit: '' }]);
+        setDifficulty('');
+        setCookingTime({ hours: 0, minutes: 0 });
+    };
+
     const fillWithGPT = () => {
         puter.ai.chat(`
 You are an api, who sends only pure JSON responses.
@@ -54,12 +68,16 @@ You've been asked to generate a "${(title || 'Random recipe')}" recipe JSON usin
 title: TITLE_OF_RECIPE,
 content: DETAILED_CONTENT_HOW_TO_COOK_WITH_HTML_MARKDOWN( No ingredients in content, only description and steps ),
 ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: NUMBER, unit: 'g' or 'kg' or 'ml' or 'l' or 'tsp' or 'tbsp' or 'pcs' } )
+difficulty: ENUM_WITH_VALUES( 'Easy', 'Medium', 'Hard' ),
+cookingTime: JSON_OBJECT_BASED_ON_SCHEMA( { hours: NUMBER, minutes: NUMBER } )
 }    
         `).then(res => {
             const parsedData = JSON.parse(res.message.content);
             setTitle(parsedData.title);
             setDescription(parsedData.content);
             setIngredients(parsedData.ingredients);
+            setDifficulty(parsedData.difficulty);
+            setCookingTime(parsedData.cookingTime);
         })
         .catch((err) => console.log(err))
         .finally(() => setLoading(false));
@@ -73,7 +91,8 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
             content: payload.description,
             imageURL: payload.imageUrl,
             ingredients: payload.ingredients,
-            authorId: auth.user.id
+            difficulty: payload.difficulty,
+            cookingTime: payload.cookingTime
         }, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -91,6 +110,8 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
             imageUrl,
             description,
             ingredients,
+            difficulty,
+            cookingTime
         };
         console.log('Saving recipe:', payload);
         addRecipeToDB(payload);
@@ -130,14 +151,42 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
                         imageURL={imageUrl}
                         setImageURL={setImageUrl}
                     />
+
+                    {/* Difficulty */}
+                    <Select
+                        label="Difficulty"
+                        placeholder="Select difficulty"
+                        data={['Easy', 'Medium', 'Hard']}
+                        value={difficulty}
+                        onChange={setDifficulty}
+                        required
+                    />
+
+                    {/* Cooking time */}
+                    <Group grow>
+                        <NumberInput
+                            label="Hours"
+                            min={0}
+                            value={cookingTime.hours}
+                            onChange={(val) => setCookingTime({ ...cookingTime, hours: val || 0 })}
+                        />
+                        <NumberInput
+                            label="Minutes"
+                            min={0}
+                            max={59}
+                            value={cookingTime.minutes}
+                            onChange={(val) => setCookingTime({ ...cookingTime, minutes: val || 0 })}
+                        />
+                    </Group>
+
                     <Title order={5} mt="sm">Ingredients</Title>
                     {ingredients.map((ingredient, index) => (
                         <IngredientItem
-                        key={index}
-                        index={index}
-                        ingredient={ingredient}
-                        onChange={handleIngredientChange}
-                        onRemove={handleRemoveIngredient}
+                            key={index}
+                            index={index}
+                            ingredient={ingredient}
+                            onChange={handleIngredientChange}
+                            onRemove={handleRemoveIngredient}
                         />
                     ))}
                     <Button
@@ -149,34 +198,37 @@ ingredients: ARRAY_WITH_JSON_OBJECT_BASED_ON_SCHEMA( { name: STRING, quantity: N
                     </Button>
                     <Button
                         leftSection={
-                            <img 
-                                width='20' 
-                                height='20' 
-                                src='https://static.thenounproject.com/png/7262146-200.png' 
+                            <img
+                                width='20'
+                                height='20'
+                                src='https://static.thenounproject.com/png/7262146-200.png'
                             />}
                         onClick={() => {
                             setLoading(true);
                             fillWithGPT();
                         }}
-                        style={{backgroundColor: 'white', color: 'black'}}
+                        style={{ backgroundColor: 'white', color: 'black' }}
                         loading={loading}
                     >
                         Ask AI to fill up
                     </Button>
 
-                    {/* Add here markdown editor */}
+                    {/* Markdown editor */}
                     <MDEditor
                         value={description}
                         onChange={setDescription}
                     />
-                    <MDEditor.Markdown 
-                        source={description} 
-                        style={{ whiteSpace: 'pre-wrap' }} 
+                    <MDEditor.Markdown
+                        source={description}
+                        style={{ whiteSpace: 'pre-wrap' }}
                     />
 
                     <Group justify="flex-end" mt="md">
                         <Button variant="default" onClick={handleCancel}>
                             Cancel
+                        </Button>
+                        <Button style={{ backgroundColor: 'white', color: 'black' }} onClick={clearFiels}>
+                            Clear
                         </Button>
                         <Button onClick={handleSubmit}>Save</Button>
                     </Group>

@@ -2,6 +2,11 @@ import { PartialType } from '@nestjs/mapped-types';
 import { CreateRecipeDto } from './create-recipe.dto';
 import { IsNotEmpty } from 'class-validator';
 
+export interface CookingTime {
+    hours: number,
+    minutes: number
+}
+
 enum Unit {
     GRAM = 'g',
     KILOGRAM = 'kg',
@@ -10,6 +15,12 @@ enum Unit {
     TEASPOON = 'tsp',
     TABLESPOON = 'tbsp',
     PIECE = 'pcs'
+}
+
+enum Difficulty {
+    HARD = 'Hard',
+    MEDIUM = 'Medium',
+    EASY = 'Easy'
 }
 
 export interface Ingredient {
@@ -30,6 +41,12 @@ export class UpdateRecipeDto extends PartialType(CreateRecipeDto) {
     
     @IsNotEmpty()
     ingredients: Ingredient[];
+
+    @IsNotEmpty()
+    difficulty: Difficulty;
+
+    @IsNotEmpty()
+    cookingTime: CookingTime
 
     @IsNotEmpty()
     authorId: number;
