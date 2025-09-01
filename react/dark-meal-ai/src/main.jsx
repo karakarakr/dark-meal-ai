@@ -1,10 +1,59 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import './index.css';
+import App from './App.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import { MantineProvider } from '@mantine/core';
+import RegisterPage from './pages/RegisterPage.jsx';
+import MainPage from './pages/MainPage.jsx';
+import RecipePage from './pages/RecipePage.jsx';
+import { Notifications } from '@mantine/notifications';
+import ErrorPage from './pages/ErrorPage.jsx';
+import { UserPage } from './pages/UserPage.jsx';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App/>,
+    // errorElement: <ErrorPage/>,
+    children: [
+      {
+        path: "/",
+        element: <MainPage/>
+        // provider: MyProvider
+      },
+      {
+        path: "/signin",
+        element: <LoginPage/>
+      },
+      {
+        path: "/signup",
+        element: <RegisterPage/>
+      },
+      {
+        path: "/recipe/:id",
+        element: <RecipePage/>
+      },
+      {
+        path: "/user/:id",
+        element: <UserPage/>
+      }
+    ]
+  },
+]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      defaultColorScheme="dark">
+      <Notifications position="bottom-right" />
+      <RouterProvider router={router} />
+    </MantineProvider>
   </StrictMode>,
 )

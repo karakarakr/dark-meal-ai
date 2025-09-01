@@ -1,20 +1,26 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import axios from 'axios'
-import './App.css'
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/dropzone/styles.css';
+import HeaderSearch from './components/common/Header/HeaderSearch';
+import { AppShell } from '@mantine/core';
+import './App.css';
+import { Outlet } from 'react-router-dom';
+import AuthProvider from './context/AuthContext';
 
 function App() {
-  const [firstResponse, setFirstResponse] = useState(null);
-  useEffect(() => {
-    axios.get('http://localhost:3000/')
-      .then(response => setFirstResponse(response.data))
-      .catch(error => console.error('Error fetching tasks:', error));
-  }, []);
-
   return (
     <>
-      <h1>{firstResponse}</h1>
+    <AuthProvider>
+        <AppShell
+          header={{ height: 60 }}
+          padding="md"
+        >
+          <HeaderSearch/>
+          <AppShell.Main>
+            <Outlet/>
+          </AppShell.Main>
+        </AppShell>
+      </AuthProvider>
     </>
   )
 }

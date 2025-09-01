@@ -1,0 +1,21 @@
+src/
+├── assets/                  # Зображення, шрифти, стилі
+├── components/              # Переюзабельні компоненти (Button, Navbar, тощо)
+│   └── Navbar.jsx
+├── layouts/                 # Шаблони сторінок (наприклад, з AppShell)
+│   └── MainLayout.jsx
+├── pages/                   # Сторінки (Login, Register, Home і т.д.)
+│   ├── auth/
+│   │   ├── LoginPage.jsx
+│   │   └── RegisterPage.jsx
+│   ├── HomePage.jsx
+│   └── NotFoundPage.jsx
+├── routes/                  # Окрема папка для конфігурації роутів
+│   └── AppRoutes.jsx
+├── services/                # API-запити, токени тощо
+│   └── authService.js
+├── utils/                   # Утиліти (guard-и, хелпери)
+│   └── PrivateRoute.jsx
+├── App.jsx
+├── main.jsx
+└── index.css
